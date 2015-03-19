@@ -39,6 +39,7 @@
     <properties>
         <!-- class contains the main function -->
         <java.mainClass/>
+        <java.version>1.6</java.version>
         <jar.addClassPath>true</jar.addClassPath>
         <!-- assemble create a jar with dependencies -->
         <assembly.skipAssembly>true</assembly.skipAssembly>

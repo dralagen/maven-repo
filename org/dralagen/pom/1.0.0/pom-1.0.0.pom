@@ -1,0 +1,210 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>org.dralagen</groupId>
+    <artifactId>pom</artifactId>
+    <version>1.0.0</version>
+    <packaging>pom</packaging>
+
+    <name>Pom</name>
+    <description>pom parent who contains the base of pom</description>
+    <url>https://github.com/dralagen/pom</url>
+
+    <licenses>
+        <license>
+            <name>GNU Affero General Public License version 3</name>
+            <url>http://www.gnu.org/licenses/agpl.txt</url>
+        </license>
+    </licenses>
+
+    <developers>
+        <developer>
+            <id>dralagen</id>
+            <name>Dralagen</name>
+            <email>dralagen@dralagen.fr</email>
+            <url>http://dralagen.fr</url>
+            <timezone>Europe/Paris</timezone>
+        </developer>
+    </developers>
+
+    <scm>
+        <connection>scm:git:https://github.com/dralagen/pom.git</connection>
+        <developerConnection>scm:git:https://github.com/dralagen/pom.git</developerConnection>
+        <url>https://github.com/dralagen/pom</url>
+    </scm>
+
+    <properties>
+        <!-- class contains the main function -->
+        <java.mainClass/>
+        <jar.addClassPath>true</jar.addClassPath>
+        <!-- assemble create a jar with dependencies -->
+        <assembly.skipAssembly>true</assembly.skipAssembly>
+
+        <!-- github server corresponds to entry in ~/.m2/settings.xml -->
+        <github.global.server>github</github.global.server>
+
+        <!-- versions -->
+        <maven.compiler.plugin.version>3.2</maven.compiler.plugin.version>
+        <maven.jar.plugin.version>2.3.1</maven.jar.plugin.version>
+        <maven.assembly.version>2.5.3</maven.assembly.version>
+        <maven.dependency.plugin.version>2.10</maven.dependency.plugin.version>
+        <maven.deploy.plugin.version>2.8.1</maven.deploy.plugin.version>
+
+        <site.maven.plugin.version>0.11</site.maven.plugin.version>
+        <site.maven.plugin.branch>refs/heads/master</site.maven.plugin.branch>
+        <site.maven.plugin.repo.name>maven-repo</site.maven.plugin.repo.name>
+        <site.maven.plugin.repo.owner>dralagen</site.maven.plugin.repo.owner>
+        <site.maven.plugin.message>Add maven artifact : ${project.groupId}.${project.artifactId} ${project.version}</site.maven.plugin.message>
+        <site.maven.plugin.merge>true</site.maven.plugin.merge>
+
+        <jgitflow.version>1.0-m4.3</jgitflow.version>
+        <jgitflow.branch.master>master</jgitflow.branch.master>
+        <jgitflow.branch.develop>develop</jgitflow.branch.develop>
+        <jgitflow.version.tag.prefix>v</jgitflow.version.tag.prefix>
+        <jgitflow.auto.version.submodules>true</jgitflow.auto.version.submodules>
+        <jgitflow.push.release.branch>false</jgitflow.push.release.branch>
+        <jgitflow.allow.untracked>true</jgitflow.allow.untracked>
+
+    </properties>
+
+    <distributionManagement>
+        <repository>
+            <id>internal.repo</id>
+            <name>Temporary Staging Repository</name>
+            <url>file://${project.build.directory}/mvn-repo</url>
+        </repository>
+    </distributionManagement>
+
+    <build>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-compiler-plugin</artifactId>
+                    <version>${maven.compiler.plugin.version}</version>
+                    <configuration>
+                        <source>${java.version}</source>
+                        <target>${java.version}</target>
+                    </configuration>
+                </plugin>
+
+                <plugin>
+                    <artifactId>maven-jar-plugin</artifactId>
+                    <version>${maven.jar.plugin.version}</version>
+                    <configuration>
+                        <archive>
+                            <manifest>
+                                <mainClass>${java.mainClass}</mainClass>
+                                <addClasspath>${jar.addClassPath}</addClasspath>
+                            </manifest>
+                        </archive>
+                    </configuration>
+                </plugin>
+
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-assembly-plugin</artifactId>
+                    <version>${maven.assembly.version}</version>
+                    <configuration>
+                        <descriptorRefs>
+                            <descriptorRef>jar-with-dependencies</descriptorRef>
+                        </descriptorRefs>
+                        <archive>
+                            <manifest>
+                                <mainClass>${java.mainClass}</mainClass>
+                            </manifest>
+                        </archive>
+                    </configuration>
+                    <executions>
+                        <execution>
+                            <phase>package</phase>
+                            <goals>
+                                <goal>single</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                </plugin>
+
+                <plugin>
+                    <artifactId>maven-dependency-plugin</artifactId>
+                    <version>${maven.dependency.plugin.version}</version>
+                    <configuration>
+                        <outputDirectory>${project.build.directory}/lib</outputDirectory>
+                    </configuration>
+                    <executions>
+                        <execution>
+                            <phase>package</phase>
+                            <goals>
+                                <goal>copy-dependencies</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                </plugin>
+
+                <plugin>
+                    <artifactId>maven-deploy-plugin</artifactId>
+                    <version>${maven.deploy.plugin.version}</version>
+                    <configuration>
+                        <altDeploymentRepository>internal.repo::default::file://${project.build.directory}/mvn-repo</altDeploymentRepository>
+                    </configuration>
+                </plugin>
+
+                <plugin>
+                    <groupId>com.github.github</groupId>
+                    <artifactId>site-maven-plugin</artifactId>
+                    <version>${site.maven.plugin.version}</version>
+                    <configuration>
+                        <message>${site.maven.plugin.message}</message>
+                        <merge>${site.maven.plugin.merge}</merge>
+                        <outputDirectory>${project.build.directory}/mvn-repo</outputDirectory>
+                        <branch>${site.maven.plugin.branch}</branch>
+                        <includes><include>**/*</include></includes>
+                        <repositoryName>${site.maven.plugin.repo.name}</repositoryName>
+                        <repositoryOwner>${site.maven.plugin.repo.owner}</repositoryOwner>
+                        <server>${github.global.server}</server>
+                    </configuration>
+                    <executions>
+                        <execution>
+                            <goals>
+                                <goal>site</goal>
+                            </goals>
+                            <phase>deploy</phase>
+                        </execution>
+                    </executions>
+                </plugin>
+
+                <!--
+                    mvn jgitflow:release-start
+                    mvn jgitflow:release-finish
+                -->
+                <plugin>
+                    <groupId>external.atlassian.jgitflow</groupId>
+                    <artifactId>jgitflow-maven-plugin</artifactId>
+                    <version>${jgitflow.version}</version>
+                    <configuration>
+                        <flowInitContext>
+                            <masterBranchName>${jgitflow.branch.master}</masterBranchName>
+                            <developBranchName>${jgitflow.branch.develop}</developBranchName>
+                            <versionTagPrefix>${jgitflow.version.tag.prefix}</versionTagPrefix>
+                        </flowInitContext>
+                        <autoVersionSubmodules>${jgitflow.auto.version.submodules}</autoVersionSubmodules>
+                        <pushReleases>${jgitflow.push.release.branch}</pushReleases>
+                        <allowUntracked>${jgitflow.allow.untracked}</allowUntracked>
+                    </configuration>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+
+        <!-- pom plugin -->
+        <plugins>
+            <plugin>
+                <groupId>com.github.github</groupId>
+                <artifactId>site-maven-plugin</artifactId>
+            </plugin>
+        </plugins>
+    </build>
+
+</project>
